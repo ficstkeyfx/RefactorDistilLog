@@ -13,19 +13,26 @@ import torch.nn.functional as F
 import math
 from time import time 
 
-from utils import DistilLog, read_data, load_data, load_model, save_model
+from utils import DistilLog, load_model, save_model
+from data_utils import read_data, load_data
 
-num_classes = 2
-num_epochs = 100
-batch_size = 50
-input_size = 30
-sequence_length = 50
-num_layers = 1
-hidden_size = 4
+# Đọc cấu hình từ file config.json
+with open('config.json', 'r') as f:
+    config = json.load(f)
+
+teach_config = config["teach"]
+
+num_classes = teach_config["num_classes"]
+num_epochs = teach_config["num_epochs"]
+batch_size = teach_config["batch_size"]
+input_size = teach_config["input_size"]
+sequence_length = teach_config["sequence_length"]
+num_layers = teach_config["num_layers"]
+hidden_size = teach_config["hidden_size"]
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-train_path = ('../datasets/HDFS/train.csv')
-save_teacher_path = ('../datasets/HDFS/model/teacher.pth')
-save_student_path = ('../datasets/HDFS/model/student.pth')
+train_path = teach_config["train_path"]
+save_teacher_path = teach_config["save_teacher_path"]
+save_student_path = teach_config["save_student_path"]
 
 train_x, train_y = read_data(train_path, input_size, sequence_length)
 train_loader = load_data(train_x, train_y, batch_size)

@@ -11,23 +11,27 @@ import torch.quantization
 import math
 import copy
 from time import time 
-from utils import load_data, load_model, DistilLog, save_model 
+from utils import load_model, DistilLog, save_model 
+from data_utils import load_data
+# Đọc cấu hình từ file config.json
+with open('config.json', 'r') as f:
+    config = json.load(f)
 
+test_config = config["test"]
 
-
-batch_size = 50
-input_size = 30
-sequence_length = 50
-hidden_size = 128
-num_layers = 2
-num_classes = 2 
-split = 50
+batch_size = test_config["batch_size"]
+input_size = test_config["input_size"]
+sequence_length = test_config["sequence_length"]
+hidden_size = test_config["hidden_size"]
+num_layers = test_config["num_layers"]
+num_classes = test_config["num_classes"]
+split = test_config["split"]
 device = torch.device('cpu')
-save_teacher_path = '../datasets/HDFS/model/teacher.pth'
-save_student_path = '../datasets/HDFS/model/student.pth'
-save_noKD_path = '../datasets/HDFS/model/noKD.pth'
-test_path = '../datasets/HDFS/test.csv'
-save_quantized_path = '../datasets/HDFS/model/quantized_model.pth'
+save_teacher_path = test_config["save_teacher_path"]
+save_student_path = test_config["save_student_path"]
+save_noKD_path = test_config["save_noKD_path"]
+test_path = test_config["test_path"]
+save_quantized_path = test_config["save_quantized_path"]
 
 fi = pd.read_csv('../datasets/HDFS/pca_vector.csv', header = None)
 vec = []
