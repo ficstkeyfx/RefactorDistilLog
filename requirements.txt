@@ -5,4 +5,3 @@ torchinfo
 overrides
 pandas
 numpy
-pytorch-quantization
