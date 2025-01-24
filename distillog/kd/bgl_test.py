@@ -10,9 +10,8 @@ from tqdm import tqdm
 import math
 import copy
 from time import time 
-from utils import load_data, load_model, DistilLog, save_model 
-
-
+from utils import load_model, DistilLog, save_model 
+from data_utils import load_data
 
 batch_size = 50
 input_size = 30

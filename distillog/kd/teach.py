@@ -15,7 +15,9 @@ from time import time
 
 from utils import DistilLog, load_model, save_model
 from data_utils import read_data, load_data
+from clogging import setup_logger
 
+logger = setup_logger("teach.log")
 # Đọc cấu hình từ file config.json
 with open('config.json', 'r') as f:
     config = json.load(f)
@@ -101,7 +103,7 @@ def teach(epochs, Teacher, Student, temp=7, alpha=0.3):
           device
       )
 
-      print(f"Loss:{loss:.2f}")
+      logger.info(f"Loss:{loss:.2f}")
 
 Teacher = DistilLog(input_size = input_size, hidden_size=128, num_layers = 2, num_classes = num_classes, is_bidirectional=False).to(device)
 Student = DistilLog(input_size = input_size, hidden_size=4, num_layers = 1, num_classes = num_classes, is_bidirectional=False).to(device)

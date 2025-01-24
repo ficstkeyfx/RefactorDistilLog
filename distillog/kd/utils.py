@@ -14,9 +14,11 @@ import csv
 from time import time
 from torch.nn import functional as F
 from attention_layers import LinearAttention
+from clogging import setup_logger
 
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+model_logger = setup_logger("train.log")
 
 class DistilLog(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, num_classes, is_bidirectional=True,
@@ -104,7 +106,7 @@ def train(model, train_loader, learning_rate, num_epochs):
                 percentage = 100. * batch_idx / len(train_loader)
                 pbar.set_description(
                     f'Train Epoch: {epoch + 1}/{num_epochs} [{done:5}/{len(train_loader.dataset)} ({percentage:3.0f}%)]  Loss: {total_loss:.6f}')
-
+                model_logger.info(f'Train Epoch: {epoch + 1}/{num_epochs} [{done:5}/{len(train_loader.dataset)} ({percentage:3.0f}%)]  Loss: {total_loss:.6f}')
     return model
 
 

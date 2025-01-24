@@ -13,6 +13,11 @@ import copy
 from time import time 
 from utils import load_model, DistilLog, save_model 
 from data_utils import load_data
+
+from clogging import setup_logger
+
+logger = setup_logger("test.log")
+
 # Đọc cấu hình từ file config.json
 with open('config.json', 'r') as f:
     config = json.load(f)
@@ -26,7 +31,8 @@ hidden_size = test_config["hidden_size"]
 num_layers = test_config["num_layers"]
 num_classes = test_config["num_classes"]
 split = test_config["split"]
-device = torch.device('cpu')
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 save_teacher_path = test_config["save_teacher_path"]
 save_student_path = test_config["save_student_path"]
 save_noKD_path = test_config["save_noKD_path"]
@@ -125,28 +131,28 @@ def main():
     accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(teacher, criterion = nn.CrossEntropyLoss())
     test_loss /= (split*sub)
 
-    print('Result of testing teacher model')
-    print('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
-    print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
-    print('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    logger.info('Result of testing teacher model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
     """
     start_time = time()
     accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(student, criterion = nn.CrossEntropyLoss())
     test_loss /= (split*sub)
 
-    print('Result of testing student model')
-    print('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
-    print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
-    print('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    logger.info('Result of testing student model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
     """
     start_time = time()
     accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(noKD, criterion = nn.CrossEntropyLoss())
     test_loss /= (split*sub)
 
-    print('Result of testing noKD model')
-    print('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
-    print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
-    print('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    logger.info('Result of testing noKD model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
 
 
 
@@ -159,10 +165,10 @@ def main():
     accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(quantized_model, criterion = nn.CrossEntropyLoss())
     test_loss /= (split*sub)
 
-    print('Result of testing quantized model')
-    print('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
-    print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
-    print('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    logger.info('Result of testing quantized model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
     """
  
 if __name__ == "__main__":

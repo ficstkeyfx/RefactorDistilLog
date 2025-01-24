@@ -16,6 +16,9 @@ from torchinfo import summary
 from utils import save_model, train
 from data_utils import read_data, load_data
 from utils import DistilLog
+from clogging import setup_logger
+
+train_logger = setup_logger("train.log")
 
 # Đọc config
 with open('config.json', 'r') as f:
