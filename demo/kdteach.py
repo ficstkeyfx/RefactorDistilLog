@@ -16,29 +16,27 @@ from time import time
 from distillog.kd.models.utils import DistilLog, load_model, save_model
 from distillog.kd.data.data_utils import read_data, load_data
 from distillog.kd.logging.clogging import setup_logger
+from distillog.kd.arguments.arguments import get_teach_args
 
 logger = setup_logger("teach.log")
-# Đọc cấu hình từ file config.json
-with open('config.json', 'r') as f:
-    config = json.load(f)
-
-teach_config = config["teach"]
-
-num_classes = teach_config["num_classes"]
-num_epochs = teach_config["num_epochs"]
-batch_size = teach_config["batch_size"]
-input_size = teach_config["input_size"]
-sequence_length = teach_config["sequence_length"]
-num_layers = teach_config["num_layers"]
-hidden_size = teach_config["hidden_size"]
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-train_path = teach_config["train_path"]
-save_teacher_path = teach_config["save_teacher_path"]
-save_student_path = teach_config["save_student_path"]
+
+args = get_teach_args()
+
+num_classes = args.num_classes
+num_epochs = args.num_epochs
+batch_size = args.batch_size
+input_size = args.input_size
+sequence_length = args.sequence_length
+num_layers = args.num_layers
+hidden_size = args.hidden_size
+
+train_path = args.train_path
+save_teacher_path = args.save_teacher_path
+save_student_path = args.save_student_path
 
 train_x, train_y = read_data(train_path, input_size, sequence_length)
 train_loader = load_data(train_x, train_y, batch_size)
-
 
 def train_step(
     Teacher,

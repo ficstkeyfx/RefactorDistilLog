@@ -13,8 +13,8 @@ from tqdm import tqdm
 import csv
 from time import time
 from torch.nn import functional as F
-from attention_layers import LinearAttention
-from clogging import setup_logger
+from distillog.kd.models.attention_layers import LinearAttention
+from distillog.kd.logging.clogging import setup_logger
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

@@ -17,28 +17,24 @@ from distillog.kd.models.utils import save_model, train
 from distillog.kd.data.data_utils import read_data, load_data
 from distillog.kd.models.utils import DistilLog
 from distillog.kd.logging.clogging import setup_logger
-
+from distillog.kd.arguments.arguments import get_train_args
 train_logger = setup_logger("train.log")
-
-# Đọc config
-with open('config.json', 'r') as f:
-    config = json.load(f)
-
-train_config = config["train"]
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-num_classes = train_config["num_classes"]
-batch_size = train_config["batch_size"]
-learning_rate = train_config["learning_rate"]
-hidden_size = train_config["hidden_size"]
-input_size = train_config["input_size"]
-sequence_length = train_config["sequence_length"]
-num_layers = train_config["num_layers"]
+args = get_train_args()
 
-train_path = train_config["train_path"]
-save_teacher_path = train_config["save_teacher_path"]
-save_noKD_path = train_config["save_noKD_path"]
+num_classes = args.num_classes
+batch_size = args.batch_size
+learning_rate = args.learning_rate
+hidden_size = args.hidden_size
+input_size = args.input_size
+sequence_length = args.sequence_length
+num_layers = args.num_layers
+train_path = args.train_path
+save_teacher_path = args.save_teacher_path
+save_noKD_path = args.save_noKD_path
+num_epochs = args.num_epochs
 
 Teacher = DistilLog(input_size, hidden_size, num_layers, num_classes, is_bidirectional=False).to(device)
 noKD = DistilLog(input_size = input_size, hidden_size = 4, num_layers = 1, num_classes = num_classes, is_bidirectional=False).to(device)
@@ -47,7 +43,7 @@ noKD = DistilLog(input_size = input_size, hidden_size = 4, num_layers = 1, num_c
 train_x, train_y = read_data(train_path, input_size, sequence_length)
 train_loader = load_data(train_x, train_y, batch_size)
 
-Teacher = train(Teacher, train_loader, learning_rate, num_epochs = 300)
-noKD = train(noKD, train_loader, learning_rate, num_epochs = 300)
+Teacher = train(Teacher, train_loader, learning_rate, num_epochs = num_epochs)
+noKD = train(noKD, train_loader, learning_rate, num_epochs = num_epochs)
 save_model(Teacher, save_teacher_path)
 save_model(noKD, save_noKD_path)

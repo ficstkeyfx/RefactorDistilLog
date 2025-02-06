@@ -5,3 +5,4 @@ torchinfo
 overrides
 pandas
 numpy
+transformers

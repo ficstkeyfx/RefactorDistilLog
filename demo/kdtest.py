@@ -7,27 +7,35 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm 
+import torch.quantization
 import math
 import copy
 from time import time 
 from distillog.kd.models.utils import load_model, DistilLog, save_model 
 from distillog.kd.data.data_utils import load_data
+from distillog.kd.logging.clogging import setup_logger
+from distillog.kd.arguments.arguments import get_test_args
 
-batch_size = 50
-input_size = 30
-sequence_length = 50
-hidden_size = 128
-num_layers = 2
-num_classes = 2 
-split = 50
-device = torch.device('cpu')
-save_teacher_path = '../datasets/BGL/model/teacher.pth'
-save_student_path = '../datasets/BGL/model/student.pth'
-save_noKD_path = '../datasets/BGL/model/noKD.pth'
-test_path = '../datasets/BGL/random_test.csv'
-save_quantized_path = '../datasets/BGL/model/quantized_model.pth'
+logger = setup_logger("test.log")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-fi = pd.read_csv('../datasets/BGL/pca_vector.csv', header = None)
+args = get_test_args()
+
+batch_size = args.batch_size
+input_size = args.input_size
+sequence_length = args.sequence_length
+hidden_size = args.hidden_size
+num_layers = args.num_layers
+num_classes = args.num_classes
+split = args.split
+save_teacher_path = args.save_teacher_path
+save_student_path = args.save_student_path
+save_noKD_path = args.save_noKD_path
+test_path = args.test_path
+save_quantized_path = args.save_quantized_path
+pca_vector = args.pca_vector
+
+fi = pd.read_csv(pca_vector, header = None)
 vec = []
 vec = fi
 vec = np.array(vec)
@@ -113,18 +121,52 @@ def main():
     #teacher = load_model(teacher, save_teacher_path)
     student = load_model(student, save_student_path)
     #noKD = load_model(noKD, save_noKD_path)
-
     
+    """
+    start_time = time()
+    accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(teacher, criterion = nn.CrossEntropyLoss())
+    test_loss /= (split*sub)
+
+    logger.info('Result of testing teacher model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    """
     start_time = time()
     accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(student, criterion = nn.CrossEntropyLoss())
     test_loss /= (split*sub)
 
-    print('Result of testing student model')
-    print('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
-    print(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
-    print('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    logger.info('Result of testing student model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    """
+    start_time = time()
+    accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(noKD, criterion = nn.CrossEntropyLoss())
+    test_loss /= (split*sub)
 
-    
+    logger.info('Result of testing noKD model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+
+
+
+    encoder = copy.deepcopy(teacher)
+    quantized_model = torch.quantization.quantize_dynamic(encoder, {nn.GRU, nn.Linear}, dtype=torch.qint8)
+
+    save_model(quantized_model, save_quantized_path)
+
+    start_time = time()
+    accuracy, test_loss, P, R, F1, TP, FP, TN, FN = test(quantized_model, criterion = nn.CrossEntropyLoss())
+    test_loss /= (split*sub)
+
+    logger.info('Result of testing quantized model')
+    logger.info('false positive (FP): {}, false negative (FN): {}, true positive (TP): {}, true negative (TN): {}'.format(FP, FN, TP, TN))
+    logger.info(f'Test set: Average loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%). Total time = {time() - start_time}')
+    logger.info('Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%' .format(P, R, F1))
+    """
+ 
 if __name__ == "__main__":
 
     main()

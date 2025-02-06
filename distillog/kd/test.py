@@ -11,10 +11,10 @@ import torch.quantization
 import math
 import copy
 from time import time 
-from utils import load_model, DistilLog, save_model 
-from data_utils import load_data
+from distillog.kd.models.utils import load_model, DistilLog, save_model 
+from distillog.kd.data.data_utils import load_data
 
-from clogging import setup_logger
+from distillog.kd.logging.clogging import setup_logger
 
 logger = setup_logger("test.log")
 

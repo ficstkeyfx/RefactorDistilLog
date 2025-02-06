@@ -13,6 +13,7 @@ DistilLog consists of the following components:
 3. **Classification**: Anomaly detection using a teacher-student architecture-based GRU model with attention. In this step include training student from teacher model via knowledge distillation.
 
 ## II. Requirements
+### 2.1. Library
 1. Python 3.7+
 2. PyTorch 1.11.0
 3. cuda 11.3
@@ -22,15 +23,81 @@ DistilLog consists of the following components:
 7. numpy
 8. torchinfo
 9. overrides
+
+To install all library:
+
+```
+pip install -r requirements.txt
+```
+
+### 2.2. Pre-trained models
+
+Pre-trained models can be found here: [HDFSmodel](distillog/datasets/HDFS/model.zip) or [BGLmodel](distillog/datasets/BGL/model.zip)
+
 ## III. Usage:
-### 3.1. Demo
+
+## 3.1. Data and Models
+
+Datasets: [Data](https://zenodo.org/record/3227177)
+
+### 3.2. Training
+
+1. Train Teacher and noKD
+
+```
+python kdtrain.py --num_classes 2 \
+    --batch_size 50 \
+    --learning_rate 0.0003 \
+    --hidden_size 128 \
+    --input_size 30 \
+    --sequence_length 50 \
+    --num_layers 2 \
+    --train_path './datasets/HDFS/train.csv' \
+    --save_teacher_path './datasets/HDFS/model/teacher.pth' \
+    --save_noKD_path './datasets/HDFS/model/noKD.pth' \
+    --num_epochs 300
+```
+
+2. Student Model learn from Teacher Model
+
+```
+python kdteach.py --num_classes 2 \
+    --num_epochs 100 \
+    --batch_size 50 \
+    --input_size 30 \
+    --sequence_length 50 \
+    --num_layers 1 \
+    --hidden_size 4 \
+    --train_path '../datasets/HDFS/train.csv' \
+    --save_teacher_path '../datasets/HDFS/model/teacher.pth' \
+    --save_student_path '../datasets/HDFS/model/student.pth'
+```
+
+3. Test Teacher, Student and noKD
+
+```
+python kdtest.py --batch_size 50 \
+    --input_size 30 \
+    --sequence_length 50 \
+    --hidden_size 128 \
+    --num_layers 2 \
+    --num_classes 2 \
+    --split 50 \
+    --save_teacher_path '../datasets/HDFS/model/teacher.pth' \
+    --save_student_path '../datasets/HDFS/model/student.pth' \
+    --save_noKD_path '../datasets/HDFS/model/noKD.pth' \
+    --test_path '../datasets/HDFS/test.csv' \
+    --save_quantized_path '../datasets/HDFS/model/quantized_model.pth' \
+    --pca_vector '../datasets/HDFS/pca_vector.csv'
+```
+
 - Train/Test teacher-student Model
 
 See [notebook](demo/DistilLog_on_HDFS.ipynb)
-## 3.2. Data and Models
-Datasets: [Data](https://zenodo.org/record/3227177)
 
-Pre-trained models can be found here: [HDFSmodel](distillog/datasets/HDFS/model.zip) or [BGLmodel](distillog/datasets/BGL/model.zip)
+
+
+
 ## IV. Results
 ### 4.1. Baselines
 | Methods   | References                             |
