@@ -10,8 +10,8 @@ def mod(l, n):
         r.extend(list([0]) * (n - len(r)))
     return r
 
-def read_data(path, input_size, sequence_length):
-    fi = pd.read_csv('../datasets/HDFS/pca_vector.csv', header = None)
+def read_data(path, input_size, sequence_length, pca_vector="../datasets/HDFS/pca_vector.csv"):
+    fi = pd.read_csv(pca_vector, header = None)
     vec = []
     vec = fi
     vec = np.array(vec)

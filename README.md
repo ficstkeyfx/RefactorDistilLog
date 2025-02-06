@@ -91,13 +91,6 @@ python kdtest.py --batch_size 50 \
     --pca_vector '../datasets/HDFS/pca_vector.csv'
 ```
 
-- Train/Test teacher-student Model
-
-See [notebook](demo/DistilLog_on_HDFS.ipynb)
-
-
-
-
 ## IV. Results
 ### 4.1. Baselines
 | Methods   | References                             |
